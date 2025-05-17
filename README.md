@@ -2,6 +2,10 @@
 
 👨‍💻 Best practice and helper to setup and maintain a [Dokploy Server](https://dokploy.com/).
 
+The backup (hot db backup 🫢) and restoration clearly (propse restart) could be improved.
+
+I am happy about some good propposals / pull requests. 🧑‍💻
+
 ## Setup
 
 1. Create a server with IP4, for example with [Hetzner](https://console.hetzner.cloud/), for less than 5€ per month.
