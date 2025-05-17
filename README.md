@@ -6,7 +6,7 @@
 
 1. Create a server with IP4, for example with [Hetzner](https://console.hetzner.cloud/), for less than 5€ per month.
 
-3. Configure the server:
+2. Configure the server:
 
     Connect via SSH, change the initial password and remember the new one:
 
@@ -28,7 +28,7 @@
 
     Open the Dokploy app, create a user and remember the password.
 
-4. Configure Dokploy:
+3. Configure Dokploy:
 
    Notifications
 
@@ -87,3 +87,27 @@
    ```bash
    bash dokploy-backup.sh
    ```
+
+## Restore
+
+The `dokploy-backup-files` folder should contain at least one backup.
+
+If the data should be restored to a new server:
+
+- Configure the new server but not the Dokploy app.
+- Create a new backup.
+- Update the server address in the `.env` file.
+- Establish a passwordsless connection to the new server.
+
+Run the restore script:
+
+```bash
+bash dokploy-restore.sh
+```
+
+Finally, the [post-restoration steps](https://docs.dokploy.com/docs/core/backups#post-restoration-steps) must be performed:
+
+- Update the IP address in Web Server > Server > Update IP.
+- Reconfigure Git providers if they were set up using IP addresses.
+- Update the DNS records to point to the new IP.
+- Recreate Traefik.me domains if they are used.
