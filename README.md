@@ -1,6 +1,6 @@
 # Dokploy Server
 
-👨‍💻 Best practice and helper to setup and maintain a [Dokploy Server](https://dokploy.com/).
+👨‍💻 Personal best practice and helper to setup and maintain a [Dokploy Server](https://dokploy.com/).
 
 ## Setup
 
