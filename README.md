@@ -51,7 +51,7 @@
    - Test the app with `http` and `https`.
    - Test the app with and without `www`.
 
-## Backup Data
+## Backup
 
 1. Clone this repository and open it in the code editor.
 
@@ -88,7 +88,7 @@
    bash dokploy-backup.sh
    ```
 
-## Restore Data
+## Restore
 
 1. The `dokploy-backup-files` folder should contain at least one backup.
 
