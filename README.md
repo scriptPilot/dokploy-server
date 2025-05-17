@@ -1,6 +1,6 @@
 # Dokploy Server
 
-👨‍💻 Best practice and helper to setup and maintain a [Dokploy Server](https://dokploy.com/).
+👨‍💻 Personal best practice and helper to setup and maintain a [Dokploy Server](https://dokploy.com/).
 
 The backup (hot db backup 🫢) and restoration clearly (propse restart) could be improved.
 
@@ -94,24 +94,24 @@ I am happy about some good propposals / pull requests. 🧑‍💻
 
 ## Restore
 
-The `dokploy-backup-files` folder should contain at least one backup.
+1. The `dokploy-backup-files` folder should contain at least one backup.
 
-If the data should be restored to a new server:
+2. If the data should be restored to a new server:
 
-- Configure the new server but not the Dokploy app.
-- Create a new backup.
-- Update the server address in the `.env` file.
-- Establish a passwordsless connection to the new server.
+    - Configure the new server but not the Dokploy app.
+    - Create a new backup.
+    - Update the server address in the `.env` file.
+    - Establish a passwordsless connection to the new server.
 
-Run the restore script:
+3. Run the restore script:
 
-```bash
-bash dokploy-restore.sh
-```
+    ```bash
+    bash dokploy-restore.sh
+    ```
 
-Finally, the [post-restoration steps](https://docs.dokploy.com/docs/core/backups#post-restoration-steps) must be performed:
+4. Finally, the [post-restoration steps](https://docs.dokploy.com/docs/core/backups#post-restoration-steps) must be performed:
 
-- Update the IP address in Web Server > Server > Update IP.
-- Reconfigure Git providers if they were set up using IP addresses.
-- Update the DNS records to point to the new IP.
-- Recreate Traefik.me domains if they are used.
+    - Update the IP address in Web Server > Server > Update IP.
+    - Reconfigure Git providers if they were set up using IP addresses.
+    - Update the DNS records to point to the new IP.
+    - Recreate Traefik.me domains if they are used.
