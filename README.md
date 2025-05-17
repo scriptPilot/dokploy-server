@@ -2,9 +2,9 @@
 
 👨‍💻 Personal best practice and helper to setup and maintain a [Dokploy Server](https://dokploy.com/).
 
-The backup (hot db backup 🫢) and restoration clearly (propse restart) could be improved.
+The backup (hot db backup 🫢) and restoration (proper restart 🤔) could be improved.
 
-I am happy about some good propposals / pull requests. 🧑‍💻
+I am happy about some good proposals / pull requests. 🧑‍💻
 
 ## Setup
 
