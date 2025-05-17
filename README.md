@@ -1,6 +1,6 @@
 # Dokploy Server
 
-👨‍💻 Personal best practice and helper to setup / backup / restore a [Dokploy Server](https://dokploy.com/).
+👨‍💻 Personal best practice and helper to **setup**, **backup** and **restore** a [Dokploy Server](https://dokploy.com/).
 
 > The backup (hot db backup 🫢) and restoration (proper restart 🤔) could be improved.<br />
 > I am happy about some good proposals / pull requests. 🧑‍💻
