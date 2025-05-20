@@ -84,15 +84,22 @@ sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_S
   fi
 done
 
-# Wait for all containers to stop after stack removal
+# Wait for all containers to stop after stack removal (with timeout)
 echo "[INFO] Waiting for all containers to stop after stack removal..."
+max_attempts=30
+attempt=1
 while true; do
   running=$(sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker ps -q')
   if [ -z "$running" ]; then
     break
   fi
-  echo "[INFO] Waiting for containers to stop after stack removal..."
+  if [ $attempt -ge $max_attempts ]; then
+    echo "[WARNING] Containers did not stop after $((max_attempts*2)) seconds. Continuing with restore."
+    break
+  fi
+  echo "[INFO] Waiting for containers to stop after stack removal... (Attempt $attempt/$max_attempts)"
   sleep 2
+  attempt=$((attempt+1))
 done
 
 # Restore /etc/dokploy folder
