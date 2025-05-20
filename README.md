@@ -88,7 +88,7 @@
 4. Backup the Dokploy folder and all Docker volumes locally:
 
    ```bash
-   bash dokploy-backup.sh
+   make deploy
    ```
 
 ## Restore
@@ -105,7 +105,7 @@
 3. Run the restore script:
 
     ```bash
-    bash dokploy-restore.sh
+    make restore
     ```
 
 4. Finally, the [post-restoration steps](https://docs.dokploy.com/docs/core/backups#post-restoration-steps) must be performed:
