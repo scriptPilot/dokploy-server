@@ -69,7 +69,7 @@
 3. Backup the Dokploy folder and all Docker volumes locally:
 
    ```bash
-   make deploy
+   make backup
    ```
 
 ## Restore
