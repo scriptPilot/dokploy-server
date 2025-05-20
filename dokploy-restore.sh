@@ -7,12 +7,12 @@ echo "[INFO] Dokploy restore script started at $(date)"
 if [ -f .env ]; then
   export $(grep -v '^#' .env | xargs)
 fi
-if [ -z "$BACKUP_SERVER_IP" ]; then
-  echo "[ERROR] BACKUP_SERVER_IP is not set. Please set it in your .env file."
+if [ -z "$RESTORE_SERVER_IP" ]; then
+  echo "[ERROR] RESTORE_SERVER_IP is not set. Please set it in your .env file."
   exit 1
 fi
-if [ -z "$BACKUP_SERVER_PW" ]; then
-  echo "[ERROR] BACKUP_SERVER_PW is not set. Please set it in your .env file."
+if [ -z "$RESTORE_SERVER_PW" ]; then
+  echo "[ERROR] RESTORE_SERVER_PW is not set. Please set it in your .env file."
   exit 1
 fi
 
@@ -22,7 +22,7 @@ if [ -z "$LOCAL_BACKUP_DIR" ]; then
   exit 1
 fi
 
-echo "[INFO] Server address loaded as $BACKUP_SERVER_IP"
+echo "[INFO] Server address loaded as $RESTORE_SERVER_IP"
 
 # Find the latest backup directory
 if [[ "$LOCAL_BACKUP_DIR" = /* ]]; then
@@ -69,22 +69,25 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
 fi
 
 # Stop all running containers on the server (suppress container IDs)
-running_containers=$(sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'docker ps -q')
-sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'docker update --restart=no $(docker ps -q)' >/dev/null 2>&1
-sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'docker ps -q | xargs -r docker stop' >/dev/null 2>&1
+echo "[INFO] Stopping all running Docker containers on the server..."
+running_containers=$(sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker ps -q')
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker update --restart=no $(docker ps -q)' >/dev/null 2>&1
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker ps -q | xargs -r docker stop' >/dev/null 2>&1
 echo "[INFO] All running Docker containers stopped and restart policies disabled."
 
 # Remove all Docker Swarm stacks before restore to prevent automatic container restarts and duplicates
-sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'docker stack ls --format "{{.Name}}"' | while read -r stack; do
+echo "[INFO] Removing all Docker Swarm stacks before restore..."
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker stack ls --format "{{.Name}}"' | while read -r stack; do
   if [ -n "$stack" ]; then
-    sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" "docker stack rm $stack"
+    sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "docker stack rm $stack"
     echo "[INFO] Docker stack $stack removed before restore."
   fi
 done
 
 # Wait for all containers to stop after stack removal
+echo "[INFO] Waiting for all containers to stop after stack removal..."
 while true; do
-  running=$(sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'docker ps -q')
+  running=$(sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker ps -q')
   if [ -z "$running" ]; then
     break
   fi
@@ -93,23 +96,26 @@ while true; do
 done
 
 # Restore /etc/dokploy folder
-sshpass -p "$BACKUP_SERVER_PW" scp -o StrictHostKeyChecking=no -q "$LATEST_BACKUP_DIR/etc-dokploy-folder.tar.gz" root@"$BACKUP_SERVER_IP":/tmp/
-sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'rm -rf /etc/dokploy && mkdir -p /etc/dokploy && cd /etc && tar xzf /tmp/etc-dokploy-folder.tar.gz'
+echo "[INFO] Restoring /etc/dokploy folder from backup..."
+sshpass -p "$RESTORE_SERVER_PW" scp -o StrictHostKeyChecking=no -q "$LATEST_BACKUP_DIR/etc-dokploy-folder.tar.gz" root@"$RESTORE_SERVER_IP":/tmp/
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'rm -rf /etc/dokploy && mkdir -p /etc/dokploy && cd /etc && tar xzf /tmp/etc-dokploy-folder.tar.gz'
 echo "[INFO] /etc/dokploy restored from backup."
 
 # Restore Docker volumes
 for archive in "$LATEST_BACKUP_DIR/volumes/"*.tar.gz; do
   volume_name=$(basename "$archive" .tar.gz)
-  sshpass -p "$BACKUP_SERVER_PW" scp -o StrictHostKeyChecking=no -q "$archive" root@"$BACKUP_SERVER_IP":/tmp/
-  sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" "docker volume create $volume_name >/dev/null 2>&1; docker run --rm -v $volume_name:/volume -v /tmp:/backup alpine sh -c 'rm -rf /volume/* && tar xzf /backup/$volume_name.tar.gz -C /volume'"
+  echo "[INFO] Restoring volume $volume_name from backup..."
+  sshpass -p "$RESTORE_SERVER_PW" scp -o StrictHostKeyChecking=no -q "$archive" root@"$RESTORE_SERVER_IP":/tmp/
+  sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "docker volume create $volume_name >/dev/null 2>&1; docker run --rm -v $volume_name:/volume -v /tmp:/backup alpine sh -c 'rm -rf /volume/* && tar xzf /backup/$volume_name.tar.gz -C /volume'"
   echo "[INFO] Volume $volume_name restored from backup."
 done
 
 # Redeploy all stacks after restore if compose file exists
 for compose_file in /etc/dokploy/*.yml; do
   stack=$(basename "$compose_file" .yml)
-  if sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" "[ -f $compose_file ]"; then
-    sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" "docker stack deploy -c $compose_file $stack"
+  echo "[INFO] Redeploying stack $stack after restore..."
+  if sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "[ -f $compose_file ]"; then
+    sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "docker stack deploy -c $compose_file $stack"
     echo "[INFO] Docker stack $stack redeployed after restore."
   fi
 done
@@ -117,7 +123,7 @@ done
 # Restore restart policies for all previously running containers (if needed)
 if [ -n "$running_containers" ]; then
   for cid in $running_containers; do
-    sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" "docker update --restart=unless-stopped $cid" >/dev/null 2>&1
+    sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "docker update --restart=unless-stopped $cid" >/dev/null 2>&1
   done
   echo "[INFO] Restart policies restored for previously running containers."
 fi

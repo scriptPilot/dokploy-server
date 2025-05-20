@@ -58,7 +58,7 @@
 
 1. Clone this repository and open it in the code editor.
 
-2. Create an `.env` file, containing the server ip:
+2. Create an `.env` file with the backup settings:
 
     ```env
     BACKUP_SERVER_IP=1.2.3.4
@@ -74,14 +74,14 @@
 
 ## Restore
 
-1. The `dokploy-backup-files` folder should contain at least one backup.
+1. Run the backup script with `make backup`.
 
-2. If the data should be restored to a new server:
+2. Extend the `.env` file with the restore settings:
 
-    - Configure the new server but not the Dokploy app.
-    - Create a new backup.
-    - Update the server address in the `.env` file.
-    - Establish a passwordsless connection to the new server.
+    ```env
+    RESTORE_SERVER_IP=1.2.3.4
+    RESTORE_SERVER_PW=secret_password
+    ````
 
 3. Run the restore script:
 
@@ -89,9 +89,14 @@
     make restore
     ```
 
-4. Finally, the [post-restoration steps](https://docs.dokploy.com/docs/core/backups#post-restoration-steps) must be performed:
+4. If the backup and restore IPs are different:
 
     - Update the IP address in Web Server > Server > Update IP.
     - Reconfigure Git providers if they were set up using IP addresses.
     - Update the DNS records to point to the new IP.
+
+5. For each project:
+
     - Recreate Traefik.me domains if they are used.
+    - Deploy the application manually.
+    - Test the application.
