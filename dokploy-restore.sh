@@ -15,8 +15,42 @@ echo "[INFO] Server address loaded as $DOKPLOY_SERVER"
 
 # Find the latest backup directory
 BACKUP_PARENT_DIR="$(pwd)/dokploy-backup-files"
-LATEST_BACKUP_DIR=$(ls -td "$BACKUP_PARENT_DIR"/*/ | head -1)
-echo "[INFO] Using latest backup directory: $LATEST_BACKUP_DIR"
+if [ ! -d "$BACKUP_PARENT_DIR" ]; then
+  echo "[ERROR] No backup folder $BACKUP_PARENT_DIR found. Aborting restore."
+  BACKUP_ERROR=1
+else
+  # Find the latest backup directory (suppress error if none found)
+  LATEST_BACKUP_DIR=$(ls -td "$BACKUP_PARENT_DIR"/*/ 2>/dev/null | head -1)
+  if [ -z "$LATEST_BACKUP_DIR" ]; then
+    echo "[ERROR] No backup subdirectory found in $BACKUP_PARENT_DIR. Aborting restore."
+    BACKUP_ERROR=1
+  else
+    echo "[INFO] Using latest backup directory: $LATEST_BACKUP_DIR"
+  fi
+fi
+
+if [ "$BACKUP_ERROR" = "1" ]; then
+  return 0 2>/dev/null || exit 0
+fi
+
+# Preview files to be restored
+LATEST_BACKUP_DIR_CLEAN=${LATEST_BACKUP_DIR%/}
+echo ""
+echo "[PREVIEW] The following items will be restored:"  # simplified wording
+# Show only the item names, not full paths
+etc_item=$(basename "$LATEST_BACKUP_DIR_CLEAN")/etc-dokploy-folder.tar.gz
+echo "- $etc_item"
+for archive in "$LATEST_BACKUP_DIR_CLEAN/volumes/"*.tar.gz; do
+  volume_item=$(basename "$LATEST_BACKUP_DIR_CLEAN")/volumes/$(basename "$archive")
+  echo "- $volume_item"
+done
+echo ""
+echo "[PREVIEW] Proceed with restoration? (y/n) "
+read -r CONFIRM
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+  echo "[INFO] Restoration cancelled by user."
+  exit 0
+fi
 
 # Stop all running containers on the server (suppress container IDs)
 running_containers=$(ssh root@"$DOKPLOY_SERVER" 'docker ps -q')
