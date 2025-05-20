@@ -80,6 +80,8 @@
     RESTORE_SERVER_PW=secret_password
     ````
 
+    It is not required to install Dokploy on the server before.
+
 3. Run the restore script:
 
     ```bash
@@ -95,5 +97,5 @@
 5. For each project:
 
     - Recreate Traefik.me domains if they are used.
-    - Deploy the application manually.
-    - Test the application.
+    - Deploy all services manually.
+    - Test all services.

@@ -68,6 +68,21 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
   exit 0
 fi
 
+# Check if Dokploy is installed on the server, if not, run install script
+echo "[INFO] Checking if Dokploy is installed on the server..."
+if ! sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" '[ -d /etc/dokploy ]'; then
+  echo "[INFO] Dokploy is not installed. Running Dokploy install script on server..."
+  sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'curl -sSL https://dokploy.com/install.sh | sh'
+  echo "[INFO] Dokploy install script completed on the server."
+else
+  echo "[INFO] Dokploy already installed on the server."
+fi
+
+# Stop all Docker swarm services and all containers
+echo "[INFO] Stopping all Docker swarm services and containers..."
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'docker service ls -q | xargs -r docker service rm; docker ps -q | xargs -r docker stop > /dev/null'
+echo "[INFO] All Docker swarm services and containers stopped."
+
 # Restore /etc/dokploy folder
 echo "[INFO] Restoring /etc/dokploy folder from backup..."
 sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'rm -rf /etc/dokploy'
@@ -86,10 +101,10 @@ for archive in "$LATEST_BACKUP_DIR/volumes/"*.tar.gz; do
   echo "[INFO] Volume $volume_name restored from backup."
 done
 
-# Clean up (remove only if file exists)
-if [ -f /tmp/dokploy_stacks.txt ]; then
-  rm /tmp/dokploy_stacks.txt
-fi
+# Run Dokploy install script on server after restore
+echo "[INFO] Running Dokploy install script on server after restore..."
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'curl -sSL https://dokploy.com/install.sh | sh'
+echo "[INFO] Dokploy install script completed on server after restore."
 
 # Do not restart containers automatically after restore. User should redeploy stacks or containers manually.
 echo "[INFO] Dokploy restore script completed at $(date)"
