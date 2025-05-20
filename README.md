@@ -61,9 +61,9 @@
 2. Create an `.env` file, containing the server ip:
 
     ```env
-    DOKPLOY_SERVER_IP=1.2.3.4
-    DOKPLOY_SERVER_PW=secret_password
-    DOKPLOY_BACKUP_DIR=dokploy-backup-folder
+    BACKUP_SERVER_IP=1.2.3.4
+    BACKUP_SERVER_PW=secret_password
+    LOCAL_BACKUP_DIR=dokploy-backup-folder
     ````
 
 3. Backup the Dokploy folder and all Docker volumes locally:
