@@ -16,10 +16,19 @@ if [ -z "$DOKPLOY_SERVER_PW" ]; then
   echo "[ERROR] DOKPLOY_SERVER_PW is not set. Please set it in your .env file."
   exit 1
 fi
+
+if [ -z "$DOKPLOY_BACKUP_DIR" ]; then
+  echo "[ERROR] DOKPLOY_BACKUP_DIR is not set. Please set it in your .env file."
+  exit 1
+fi
 echo "[INFO] Server address loaded as $DOKPLOY_SERVER_IP"
 
 # Ensure the local file structure
-BACKUP_DIR="$(pwd)/dokploy-backup-files/$(date +"%Y-%m-%d")"
+if [[ "$DOKPLOY_BACKUP_DIR" = /* ]]; then
+  BACKUP_DIR="$DOKPLOY_BACKUP_DIR/$(date +"%Y-%m-%d")"
+else
+  BACKUP_DIR="$(pwd)/$DOKPLOY_BACKUP_DIR/$(date +"%Y-%m-%d")"
+fi
 if [ -d "$BACKUP_DIR" ]; then
   rm -rf "$BACKUP_DIR"
 fi

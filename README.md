@@ -63,6 +63,7 @@
     ```env
     DOKPLOY_SERVER_IP=1.2.3.4
     DOKPLOY_SERVER_PW=secret_password
+    DOKPLOY_BACKUP_DIR=dokploy-backup-folder
     ````
 
 3. Backup the Dokploy folder and all Docker volumes locally:
