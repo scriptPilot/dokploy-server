@@ -41,10 +41,10 @@ echo "[INFO] Archiving and downloading the /etc/dokploy folder..."
 sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'cd /etc && tar czf - dokploy' > "$BACKUP_DIR/etc-dokploy-folder.tar.gz"
 echo "[INFO] Folder /etc/dokploy archived and downloaded as etc-dokploy-folder.tar.gz"
 
-# Archive and download all Docker volumes
+# Archive and download all Docker volumes but exclude not required Dokploy volumes
 for volume in $(sshpass -p "$BACKUP_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$BACKUP_SERVER_IP" 'docker volume ls -q'); do
-  if [[ "$volume" == redis-data-volume ]] || [[ "$volume" == buildx_buildkit* ]]; then
-    echo "[INFO] Skipping volume $volume as requested."
+  if [[ "$volume" == redis-data-volume ]] || [[ "$volume" == dokploy-docker-config ]] || [[ "$volume" == buildx_buildkit* ]]; then
+    echo "[INFO] Skipping volume $volume."
     continue
   fi
   echo "[INFO] Archiving and downloading volume $volume..."
