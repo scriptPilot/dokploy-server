@@ -61,31 +61,11 @@
 2. Create an `.env` file, containing the server ip:
 
     ```env
-    DOKPLOY_SERVER=1.2.3.4
+    DOKPLOY_SERVER_IP=1.2.3.4
+    DOKPLOY_SERVER_PW=secret_password
     ````
 
-3. Establish a passwordless SSH connection:
-
-    Generate a key pair:
-
-    ```bash
-    ssh-keygen -t rsa -b 4096 -C "Dokploy" -f ~/.ssh/id_rsa_dokploy -N ""
-    ```
-
-    Copy the public key to the server, enter the server password:
-
-    ```bash
-    export $(grep -v '^#' .env | xargs) && \
-    ssh-copy-id -i ~/.ssh/id_rsa_dokploy.pub root@$DOKPLOY_SERVER
-    ```
-
-    Add the private key to the SSH agent for passwordless login:
-    ```bash
-    eval $(ssh-agent -s)
-    ssh-add ~/.ssh/id_rsa_dokploy
-    ```
-
-4. Backup the Dokploy folder and all Docker volumes locally:
+3. Backup the Dokploy folder and all Docker volumes locally:
 
    ```bash
    make deploy
