@@ -111,6 +111,8 @@ echo "[INFO] /etc/dokploy restored from backup."
 # Restore Docker volumes
 for archive in "$LATEST_BACKUP_DIR/volumes/"*.tar.gz; do
   volume_name=$(basename "$archive" .tar.gz)
+  echo "[INFO] Removing existing volume $volume_name before restore..."
+  sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "docker volume rm -f $volume_name >/dev/null 2>&1 || true"
   echo "[INFO] Restoring volume $volume_name from backup..."
   sshpass -p "$RESTORE_SERVER_PW" scp -o StrictHostKeyChecking=no -q "$archive" root@"$RESTORE_SERVER_IP":/tmp/
   sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" "docker volume create $volume_name >/dev/null 2>&1; docker run --rm -v $volume_name:/volume -v /tmp:/backup alpine sh -c 'rm -rf /volume/* && tar xzf /backup/$volume_name.tar.gz -C /volume'"
