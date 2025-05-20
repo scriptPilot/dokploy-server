@@ -70,8 +70,9 @@ fi
 
 # Restore /etc/dokploy folder
 echo "[INFO] Restoring /etc/dokploy folder from backup..."
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'rm -rf /etc/dokploy'
 sshpass -p "$RESTORE_SERVER_PW" scp -o StrictHostKeyChecking=no -q "$LATEST_BACKUP_DIR/etc-dokploy-folder.tar.gz" root@"$RESTORE_SERVER_IP":/tmp/
-sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'rm -rf /etc/dokploy && mkdir -p /etc/dokploy && cd /etc && tar xzf /tmp/etc-dokploy-folder.tar.gz'
+sshpass -p "$RESTORE_SERVER_PW" ssh -o StrictHostKeyChecking=no root@"$RESTORE_SERVER_IP" 'mkdir -p /etc/dokploy && cd /etc && tar xzf /tmp/etc-dokploy-folder.tar.gz'
 echo "[INFO] /etc/dokploy restored from backup."
 
 # Restore Docker volumes
