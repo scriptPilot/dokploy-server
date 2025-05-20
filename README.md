@@ -88,9 +88,11 @@
     make restore
     ```
 
-4. If the backup and restore IPs are different:
+4. Adjust the configuration:
 
-    - Update the IP address in Web Server > Server > Update IP.
+    - Update the IP address in `Web Server > Server > Update IP`.
+    - Restart the server in `Web Server > Server > Reload`.
+    - Restart Traefik in `Web Server > Traefik > Reload`.
     - Reconfigure Git providers if they were set up using IP addresses.
     - Update the DNS records to point to the new IP.
 
