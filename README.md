@@ -26,9 +26,11 @@
     exit
     ```
 
-    Open the Dokploy app, create a user and remember the password.
-
 3. Configure Dokploy:
+
+   Admin User
+
+   - Open the Dokploy app at `http://{server_ip}:3000`, create a user and remember the password.
 
    Notifications
 
@@ -71,9 +73,7 @@
 
 ## Restore
 
-1. Run the backup script with `make backup`.
-
-2. Extend the `.env` file with the restore settings:
+1. Extend the `.env` file with the restore settings:
 
     ```env
     RESTORE_SERVER_IP=1.2.3.4
@@ -82,20 +82,20 @@
 
     It is not required to install Dokploy on the server before.
 
-3. Run the restore script:
+2. Run the restore script:
 
     ```bash
     make restore
     ```
 
-4. Adjust the configuration:
+3. Adjust the configuration:
 
     - Update the IP address in `Web Server > Server > Update Server IP`.
     - Restart Traefik in `Web Server > Traefik > Reload`.
     - Reconfigure Git providers if they were set up using IP addresses.
     - Update the DNS records to point to the new IP.
 
-5. For each project:
+4. For each project:
 
     - Recreate Traefik.me domains if they are used.
     - Deploy all services manually.
