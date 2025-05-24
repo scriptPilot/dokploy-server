@@ -92,11 +92,11 @@
 
     - Update the IP address in `Web Server > Server > Update Server IP`.
     - Restart Traefik in `Web Server > Traefik > Reload`.
-    - Reconfigure Git providers if they were set up using IP addresses.
-    - Update the DNS records to point to the new IP.
 
 4. For each project:
 
     - Recreate Traefik.me domains if they are used.
-    - Deploy all services manually.
-    - Test all services.
+    - Deploy services manually.
+    - Test services.
+
+5. Update the DNS records to point to the new IP.
