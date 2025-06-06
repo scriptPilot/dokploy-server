@@ -2,6 +2,12 @@
 
 👨‍💻 Personal best practice and helper to **setup**, **backup** and **restore** a [Dokploy Server](https://dokploy.com/).
 
+## Prerequisites
+
+- [Docker](https://www.docker.com/)
+- [Homebrew](https://brew.sh/)
+- [sshpass](https://formulae.brew.sh/formula/sshpass)
+
 ## Setup
 
 1. Create a server with IP4, for example with [Hetzner](https://console.hetzner.cloud/), for less than 5€ per month.
